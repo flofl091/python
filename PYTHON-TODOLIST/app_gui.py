@@ -1,153 +1,108 @@
+import customtkinter as ctk
 import tkinter as tk
 from tkinter import messagebox
-from app import ToDoListApp
+from tkcalendar import DateEntry
+import datetime
 
-class ToDoListGUI(ToDoListApp):
+class ToDoListGUI(ctk.CTk):
     def __init__(self):
-        self.tasks = []  # Liste pour stocker les tâches
-        self.create_gui()  # Appeler la fonction pour créer l'interface graphique
+        super().__init__()
 
-    def create_gui(self):
-        # Créer la fenêtre principale
-        self.root = tk.Tk()
-        self.root.title("To Do List")  # Titre de la fenêtre principale
+        self.title("To-Do List")
+        self.geometry("400x700")
 
-        # Bouton "+" pour ajouter une tâche
-        self.add_task_button = tk.Button(self.root, text="+", command=self.add_task_window)
-        self.add_task_button.pack(side=tk.TOP, anchor=tk.NE, padx=10, pady=10)
+        self.tasks = []
 
-        # Bouton pour trier les tâches par nom
-        self.sort_by_name_button = tk.Button(self.root, text="Trier par Nom", command=self.sort_tasks_by_name)
-        self.sort_by_name_button.pack(side=tk.TOP, anchor=tk.NW, padx=10, pady=10)
+        # Set up the UI components
+        self.create_widgets()
 
-        # Bouton pour trier les tâches par urgence
-        self.sort_by_urgency_button = tk.Button(self.root, text="Trier par Urgence", command=self.sort_tasks_by_urgency)
-        self.sort_by_urgency_button.pack(side=tk.TOP, anchor=tk.NW, padx=10, pady=10)
+    def create_widgets(self):
+        # Title Label
+        self.title_label = ctk.CTkLabel(self, text="My To-Do List", font=("Arial", 24))
+        self.title_label.pack(pady=20)
 
-        # Liste des tâches
-        self.task_listbox = tk.Listbox(self.root, height=20, width=60)
-        self.task_listbox.pack(pady=10, padx=10)
+        # Add Task Button
+        self.add_task_button = ctk.CTkButton(self, text="Ajouter une tâche", command=self.open_add_task_window)
+        self.add_task_button.pack(pady=10)
 
-        # Lier la double-clic sur une tâche à la fonction pour afficher les détails
-        self.task_listbox.bind("<Double-Button-1>", self.show_task_details)
+        # Sort Dropdown Menu
+        self.sort_var = tk.StringVar(value="Trier par...")
+        self.sort_menu = ctk.CTkOptionMenu(self, variable=self.sort_var, values=["Priorité", "Nom", "Date"], command=self.sort_tasks)
+        self.sort_menu.pack(pady=10)
 
-        self.root.mainloop()  # Lancer la boucle principale pour afficher l'interface graphique
+        # Task Listbox (using tkinter Listbox)
+        self.task_listbox = tk.Listbox(self, width=48, height=25, font=("Arial", 14))
+        self.task_listbox.pack(pady=20)
 
-    def add_task_window(self):
-        # Fonction pour afficher une fenêtre pour ajouter une tâche
-        add_window = tk.Toplevel(self.root)  # Créer une nouvelle fenêtre
-        add_window.title("Add Task")  # Titre de la fenêtre
+        # Delete Task Button
+        self.delete_task_button = ctk.CTkButton(self, text="Supprimer la tâche", command=self.delete_task)
+        self.delete_task_button.pack(pady=10)
 
-        # Éléments de l'interface pour ajouter une tâche (labels, menus déroulants, bouton)
-        tk.Label(add_window, text="Nom de la tâche:").grid(row=0, column=0, sticky="w", padx=10, pady=5)
-        entry_nom = tk.Entry(add_window, width=30)
-        entry_nom.grid(row=0, column=1, padx=10, pady=5)
+    def open_add_task_window(self):
+        self.add_task_window = ctk.CTkToplevel(self)
+        self.add_task_window.title("Ajouter la tâche")
+        self.add_task_window.geometry("400x500")
 
-        tk.Label(add_window, text="Urgence:").grid(row=1, column=0, sticky="w", padx=10, pady=5)
-        urgence_var = tk.StringVar(add_window)
-        urgence_var.set("")  
-        dropdown_urgence = tk.OptionMenu(add_window, urgence_var, "", "!", "!!", "!!!")
-        dropdown_urgence.grid(row=1, column=1, sticky="w", padx=10, pady=5)
+        # Task Name Entry
+        self.task_name_label = ctk.CTkLabel(self.add_task_window, text="Nom")
+        self.task_name_label.pack(pady=10)
+        self.task_name_entry = ctk.CTkEntry(self.add_task_window, width=300)
+        self.task_name_entry.pack(pady=10)
 
-        tk.Label(add_window, text="Date :").grid(row=2, column=0, sticky="w", padx=10, pady=5)
-        day_var = tk.StringVar(add_window)
-        day_var.set("01")
-        dropdown_day = tk.OptionMenu(add_window, day_var, *[str(day).zfill(2) for day in range(1, 32)])
-        dropdown_day.grid(row=2, column=1, sticky="w", padx=10, pady=5)
+        # Priority Selection
+        self.priority_label = ctk.CTkLabel(self.add_task_window, text="Priorité")
+        self.priority_label.pack(pady=10)
+        self.priority_var = tk.StringVar(value="Normal")
+        self.priority_menu = ctk.CTkOptionMenu(self.add_task_window, variable=self.priority_var, values=["Bas", "Normal", "Elevé"])
+        self.priority_menu.pack(pady=10)
 
-        month_var = tk.StringVar(add_window)
-        month_var.set("01")
-        dropdown_month = tk.OptionMenu(add_window, month_var, *[str(month).zfill(2) for month in range(1, 13)])
-        dropdown_month.grid(row=2, column=1, sticky="w", padx=80, pady=5)
+        # Date Entry
+        self.date_label = ctk.CTkLabel(self.add_task_window, text="Date")
+        self.date_label.pack(pady=10)
+        self.date_entry = DateEntry(self.add_task_window, width=16, background='lightblue', foreground='black', borderwidth=2)
+        self.date_entry.pack(pady=10)
 
-        year_var = tk.StringVar(add_window)
-        year_var.set("2020")
-        dropdown_year = tk.OptionMenu(add_window, year_var, *[str(year) for year in range(2020, 2031)])
-        dropdown_year.grid(row=2, column=1, sticky="w", padx=150, pady=5)
+        # Time Entry
+        self.time_label = ctk.CTkLabel(self.add_task_window, text="Heure (HH:MM)")
+        self.time_label.pack(pady=10)
+        self.time_entry = ctk.CTkEntry(self.add_task_window, width=300)
+        self.time_entry.pack(pady=10)
 
-        tk.Label(add_window, text="Heure :").grid(row=3, column=0, sticky="w", padx=10, pady=5)
-        hour_var = tk.StringVar(add_window)
-        hour_var.set("00")
-        dropdown_hour = tk.OptionMenu(add_window, hour_var, *[str(hour).zfill(2) for hour in range(0, 24)])
-        dropdown_hour.grid(row=3, column=1, sticky="w", padx=10, pady=5)
+        # Add Task Button in the new window
+        self.add_task_confirm_button = ctk.CTkButton(self.add_task_window, text="Ajouter la tâche", command=self.add_task)
+        self.add_task_confirm_button.pack(pady=20)
 
-        minute_var = tk.StringVar(add_window)
-        minute_var.set("00")
-        dropdown_minute = tk.OptionMenu(add_window, minute_var, *[str(minute).zfill(2) for minute in range(0, 60)])
-        dropdown_minute.grid(row=3, column=1, sticky="w", padx=80, pady=5)
+    def add_task(self):
+        task_name = self.task_name_entry.get()
+        priority = self.priority_var.get()
+        date = self.date_entry.get_date()
+        time = self.time_entry.get()
 
-        btn_ajouter = tk.Button(add_window, text="Ajouter", command=lambda: self.add_task(add_window, entry_nom.get(), urgence_var.get(), f"{day_var.get()}/{month_var.get()}/" + year_var.get(), f"{hour_var.get()}h{minute_var.get()}"))
-        btn_ajouter.grid(row=4, columnspan=4, pady=10)
-
-    def show_task_details(self, event):
-        # Fonction pour afficher les détails d'une tâche lors d'un double-clic
-        selected_index = self.task_listbox.curselection()  # Récupérer l'index de la tâche sélectionnée
-        if selected_index:
-            index = selected_index[0]
-            selected_task = self.tasks[index]  # Récupérer la tâche correspondante à l'index
-
-            # Créer une nouvelle fenêtre pour afficher les détails de la tâche sélectionnée
-            detail_window = tk.Toplevel(self.root)
-            detail_window.title("Task Details")
-
-            # Afficher les détails de la tâche et les boutons pour modifier ou supprimer
-            tk.Label(detail_window, text="Détail de la tâche:").pack()
-            entry_detail = tk.Entry(detail_window, width=50)
-            entry_detail.insert(tk.END, selected_task)
-            entry_detail.pack(padx=10, pady=10)
-
-            btn_modifier = tk.Button(detail_window, text="Modifier", command=lambda: self.modify_task(detail_window, index, entry_detail.get()))
-            btn_modifier.pack(side=tk.LEFT, padx=5, pady=5)
-            btn_supprimer = tk.Button(detail_window, text="Supprimer", command=lambda: self.delete_task(detail_window, index))
-            btn_supprimer.pack(side=tk.RIGHT, padx=5, pady=5)
-
-    def display_menu(self):
-        pass
-
-    def add_task(self, window, name, urgency, date, time):
-        # Fonction pour ajouter une tâche à la liste et fermer la fenêtre d'ajout
-        if name:
-            task = f"{name}"
-            if urgency:
-                task += f" {urgency}"
-            if date != "01/01/2020":
-                task += f" - {date}"
-            if time != "00h00":
-                task += f" - {time}"
+        if task_name and priority and date and time:
+            task = f"{task_name} - {priority} - {date} - {time}"
             self.tasks.append(task)
-            self.task_listbox.insert(tk.END, task)
-            window.destroy()  # Ferme la fenêtre externe
+            self.update_task_listbox()
+            self.add_task_window.destroy()
         else:
-            messagebox.showwarning("Erreur", "Veuillez entrer le nom de la tâche.")
+            messagebox.showwarning("Input Error", "Remplir tous les champs.")
 
-    def modify_task(self, window, index, new_task):
-        # Fonction pour modifier une tâche dans la liste et fermer la fenêtre de détails
-        if new_task:
-            self.tasks[index] = new_task
-            self.task_listbox.delete(index)
-            self.task_listbox.insert(index, new_task)
-            window.destroy()  # Ferme la fenêtre externe
+    def delete_task(self):
+        selected_task_index = self.task_listbox.curselection()
+        if selected_task_index:
+            del self.tasks[selected_task_index[0]]
+            self.update_task_listbox()
         else:
-            messagebox.showwarning("Erreur", "Veuillez entrer le nouveau nom de la tâche.")
-
-    def delete_task(self, window, index):
-        # Fonction pour supprimer une tâche de la liste et fermer la fenêtre de détails
-        del self.tasks[index]
-        self.task_listbox.delete(index)
-        window.destroy()  # Ferme la fenêtre externe
-
-    def sort_tasks_by_name(self):
-        # Fonction pour trier les tâches par leur nom
-        self.tasks.sort()
-        self.update_task_listbox()
-
-    def sort_tasks_by_urgency(self):
-        # Fonction pour trier les tâches par urgence
-        self.tasks.sort(key=lambda x: x.split(" ")[-1])
-        self.update_task_listbox()
+            messagebox.showwarning("Selection Error", "Sélectionner une tâche à supprimer.")
 
     def update_task_listbox(self):
-        # Fonction pour mettre à jour la liste des tâches affichées dans la Listbox
-        self.task_listbox.delete(0, tk.END)  # Efface toutes les tâches actuelles de la Listbox
+        self.task_listbox.delete(0, tk.END)
         for task in self.tasks:
-            self.task_listbox.insert(tk.END, task)  # Insère chaque tâche triée dans la Listbox
+            self.task_listbox.insert(tk.END, task)
+
+    def sort_tasks(self, selected_sort):
+        if selected_sort == "Priorité":
+            self.tasks.sort(key=lambda x: x.split(" - ")[1])
+        elif selected_sort == "Nom":
+            self.tasks.sort(key=lambda x: x.split(" - ")[0])
+        elif selected_sort == "Date":
+            self.tasks.sort(key=lambda x: datetime.datetime.strptime(x.split(" - ")[2], "%d/%m/%y"))

@@ -1,24 +1,32 @@
 
+class ToDoListApp:
+    def __init__(self):
+        self.tasks = []  # Liste pour stocker les tâches
 
-from abc import ABC, abstractmethod
-
-class ToDoListApp(ABC):
-    @abstractmethod
-    def display_menu(self):
-        pass
-
-    @abstractmethod
     def add_task(self, name, urgency, date, time):
-        pass
+        if name:
+            task = f"{name}"
+            if urgency:
+                task += f" - {urgency}"
+            if date != "01/01/2020":
+                task += f" - {date}"
+            if time != "00h00":
+                task += f" - {time}"
+            self.tasks.append(task)
+        else:
+            raise ValueError("Task name cannot be empty")
 
-    @abstractmethod
-    def show_task_details(self):
-        pass
+    def delete_task(self, index):
+        del self.tasks[index]
 
-    @abstractmethod
-    def modify_task(self):
-        pass
+    def modify_task(self, index, new_task):
+        self.tasks[index] = new_task
 
-    @abstractmethod
-    def delete_task(self):
-        pass
+    def sort_tasks_by_name(self):
+        self.tasks.sort()
+
+    def sort_tasks_by_urgency(self):
+        self.tasks.sort(key=lambda x: x.split(" ")[-1])
+
+    def show_task_details(self, index):
+        return self.tasks[index]

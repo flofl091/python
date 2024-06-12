@@ -4,40 +4,49 @@ from app import ToDoListApp
 
 class ToDoListCLI(ToDoListApp):
     def __init__(self):
-        self.tasks = []
+        super().__init__()
         self.display_menu()
 
     def display_menu(self):
-        print("1. Add Task")
-        print("2. Show Task Details")
-        print("3. Modify Task")
-        print("4. Delete Task")
-        print("5. Exit")
+        while True:
+            print("\n1. Add Task")
+            print("2. Show Task Details")
+            print("3. Modify Task")
+            print("4. Delete Task")
+            print("5. Exit")
 
-    def add_task(self, name, urgency, date, time):
-        if name:
-            task = f"{name}"
-            if urgency:
-                task += f" - Urgency {urgency}"
-            if date:
-                task += f" - Date: {date}"
-            if time:
-                task += f" - Time: {time}"
-            self.tasks.append(task)
-        else:
-            print("Please enter the task name.")
+            choice = input("Enter your choice: ")
+            if choice == "1":
+                self.add_task_cli()
+            elif choice == "2":
+                self.show_task_details_cli()
+            elif choice == "3":
+                self.modify_task_cli()
+            elif choice == "4":
+                self.delete_task_cli()
+            elif choice == "5":
+                break
+            else:
+                print("Invalid choice. Please try again.")
 
-    def show_task_details(self):
+    def add_task_cli(self):
+        name = input("Enter task name: ")
+        urgency = input("Enter task urgency (!, !!, !!!): ")
+        date = input("Enter task date (YYYY-MM-DD): ")
+        time = input("Enter task time (HH:MM): ")
+        self.add_task(name, urgency, date, time)
+
+    def show_task_details_cli(self):
         for index, task in enumerate(self.tasks, start=1):
             print(f"{index}. {task}")
 
-    def modify_task(self):
-        self.show_task_details()
+    def modify_task_cli(self):
+        self.show_task_details_cli()
         index = int(input("Enter the index of the task you want to modify: ")) - 1
         new_task = input("Enter the new task: ")
-        self.tasks[index] = new_task
+        self.modify_task(index, new_task)
 
-    def delete_task(self):
-        self.show_task_details()
+    def delete_task_cli(self):
+        self.show_task_details_cli()
         index = int(input("Enter the index of the task you want to delete: ")) - 1
-        del self.tasks[index]
+        self.delete_task(index)
