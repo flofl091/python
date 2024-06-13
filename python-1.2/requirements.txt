@@ -1,0 +1,2 @@
+module pip à installer:
+customkinter, tkcalendar, tkinter, csv, datetime
