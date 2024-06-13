@@ -1,6 +1,5 @@
 
 GROUPE : 
 
-PROJECT : TO DO LIST IN PYTHON
+PROJECT : TO DO LIST EN PYTHON
 
-REQUIREMENT : customtkinter, tkinter, tkcalendar
