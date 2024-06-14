@@ -1,0 +1,20 @@
+# TO DO LIST - Version 1.4
+
+
+from app_cli import ToDoListCLI  # Importe la classe ToDoListCLI depuis le fichier app_cli.py
+from app_gui import ToDoListGUI  # Importe la classe ToDoListGUI depuis le fichier app_gui.py
+
+def main(application_mode: str = "Terminal"):
+    if application_mode == "Terminal":
+        print("Démarrage en mode Terminal")  # Affiche un message pour indiquer que le programme démarre en mode CLI
+        app = ToDoListCLI()  # Démarre l'application en mode CLI
+    elif application_mode == "GUI":
+        print("Démarrage en mode Interface")  # Affiche un message pour indiquer que le programme démarre en mode GUI
+        app = ToDoListGUI()  # Démarre l'application en mode GUI
+    else:
+        print("Cette commande n'est pas valide")  # Affiche un message si le mode spécifié n'est pas disponible
+
+# Main guard
+if __name__ == "__main__":
+    app = ToDoListGUI()
+    app.mainloop() # Uniquement pour le mode GUI
